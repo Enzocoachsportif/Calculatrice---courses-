@@ -1,0 +1,46 @@
+import streamlit as st
+
+# Fonction pour calculer le total
+def calculer_total(panier):
+    total_prix = sum(item["quantite"] * item["prix"] for item in panier)
+    total_calories = sum(item["quantite"] * item["calories"] for item in panier)
+    return total_prix, total_calories
+
+# Fonction pour appliquer les taxes
+def appliquer_taxes(total, taxe=0.2):
+    return total * (1 + taxe)
+
+# Interface utilisateur avec Streamlit
+st.title("Calculatrice de courses avec Calories")
+
+# Liste des articles ajoutés
+panier = []
+
+# Saisie utilisateur pour ajouter des articles
+article = st.text_input("Nom de l'article")
+quantite = st.number_input("Quantité", min_value=1, value=1)
+prix = st.number_input("Prix unitaire (€)", min_value=0.0, value=0.0)
+calories = st.number_input("Calories par unité", min_value=0.0, value=0.0)
+
+# Ajouter l'article au panier
+if st.button("Ajouter au panier"):
+    if article and prix > 0:
+        panier.append({"article": article, "quantite": quantite, "prix": prix, "calories": calories})
+        st.success(f"{quantite} x {article} ajouté au panier à {prix}€ chacun avec {calories} calories par unité.")
+    else:
+        st.error("Veuillez entrer un nom d'article, un prix et des calories valides.")
+
+# Afficher le panier
+if panier:
+    st.subheader("Votre panier")
+    for item in panier:
+        st.write(f"{item['quantite']} x {item['article']} - {item['prix']}€ chacun, {item['calories']} calories par unité")
+    
+    # Calculer et afficher le total sans taxes et les calories totales
+    total_sans_taxes, total_calories = calculer_total(panier)
+    st.write(f"Total sans taxes : {total_sans_taxes:.2f}€")
+    st.write(f"Total des calories : {total_calories:.2f} calories")
+
+    # Appliquer et afficher les taxes
+    total_avec_taxes = appliquer_taxes(total_sans_taxes)
+    st.write(f"Total avec taxes (TVA 20%) : {total_avec_taxes:.2f}€")
